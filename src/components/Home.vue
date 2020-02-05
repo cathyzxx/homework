@@ -9,7 +9,7 @@
       <router-link to="/album">专辑管理</router-link>|
       <router-link to="/singer">歌手管理</router-link>|
       <router-link to="/test">mocha测试</router-link>|
-      <router-link to="/api">接口测试</router-link>|
+      <router-link to="/interface">接口测试</router-link>|
     </div>
     <router-view/>
   </div>

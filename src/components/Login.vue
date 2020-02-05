@@ -58,9 +58,10 @@ export default {
   methods: {
     // 登录
     login() {
-      //const that=this;
+       // const that=this;
        // that.$router.push({path:"/home"});
         var $this = this;
+        const that=this;
         this.$refs.form.validate(valid => {
               if (valid) {
                 this.isloading = true;
@@ -70,10 +71,8 @@ export default {
                   data:this.form,
               })
               .then(response => {
-                  setTimeout(function(){
                     $this.isloading = false;
-                    $this.$router.push({path:"/home"})
-                  },3000)
+                    that.$router.push({path:"/home"});
 
               })
               .catch((error) => {
@@ -83,7 +82,7 @@ export default {
             console.log("不请求")
           }
       })
-
+ 
         
     },
     showPwd() {

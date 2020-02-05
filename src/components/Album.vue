@@ -13,13 +13,12 @@
         <label for="" class="formLabelCss">专辑名称:</label>
         <el-input v-model="albumName"  class="formInputCss" clearable placeholder="请输入专辑名称"></el-input>
 
-        <label for="" class="formLabelCss">发行年份:</label>
-        <el-select v-model="albumYear" class="formInputCss">
-            <el-option
-              v-for="item in albumYears"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+        <label for="" class="formLabelCss">歌手:</label>
+        <el-select v-model="singer" class="formInputCss" @focus="getSinger()" >
+             <el-option v-for="item in singers"
+               :key="item._id"
+               :label="item.singerName"
+               :value="item.singerName">
             </el-option>
         </el-select>
 
@@ -34,7 +33,7 @@
         </el-select>
 
         <el-button type="primary" class="searchBtn" icon="el-icon-search" @keyup.enter.native="search"  @click="search">查询</el-button>
-			  <el-button type="text" @click="clear">清空</el-button>
+			  <el-button type="text" @click="clear">清空查询条件</el-button>
 
       </header>
 
@@ -75,19 +74,19 @@
                     </template>
             </el-table-column>
             <el-table-column
-            prop="singers"
-            label="歌手"
+            prop="albumYear"
+            label="发行年份"
             align="center"
             width="150">
             </el-table-column>
             
             <el-table-column
-            prop="albumYear"
-            label="发行年份"
+            prop="singer"
+            label="歌手"
             align="center"
             width="163">
                       <template slot-scope="scope">
-                        {{jungleYear(scope.row.albumYear)}}
+                        {{scope.row.singer}}
                     </template>
             </el-table-column>
           
@@ -132,19 +131,21 @@
       </el-select>
     </el-form-item>
 
-     <el-form-item label="歌手:" :label-width="formLabelWidth" prop="singers">
-      <el-input v-model="addForm.singers" auto-complete="off" placeholder="请输入歌手"></el-input>
+    <el-form-item label="歌手:" :label-width="formLabelWidth" prop="singer">
+      <el-select v-model="addForm.singer" placeholder="请选择歌手" class="sexArea" multiple @focus="getSinger()">
+       <el-option v-for="item in singers"
+               :key="item._id"
+               :label="item.singerName"
+               :value="item.singerName">
+      </el-option>
+      </el-select>   
     </el-form-item>
 
-    <el-form-item label="发行年份:" :label-width="formLabelWidth" prop="albumYear">
-      <el-select v-model="addForm.albumYear" placeholder="请选择发行年份" class="sexArea" multiple>
-        <el-option label="2020" value="y2020"></el-option>
-        <el-option label="2019" value="y2019"></el-option>
-        <el-option label="2018-2000" value="y2018"></el-option>
-        <el-option label="90年代" value="y90"></el-option>
-        <el-option label="更早" value="other"></el-option>
-      </el-select>
+     <el-form-item label="发行年份:" :label-width="formLabelWidth" prop="albumYear">
+      <el-input v-model="addForm.albumYear" auto-complete="off" placeholder="请输入发行年份"></el-input>
     </el-form-item>
+
+
 
 
 
@@ -174,18 +175,18 @@
       </el-select>
     </el-form-item>
 
-     <el-form-item label="歌手:" :label-width="formLabelWidth" prop="singers">
-      <el-input v-model="modifyForm.singers" auto-complete="off" placeholder="请输入歌手专辑"></el-input>
+     <el-form-item label="发行年份:" :label-width="formLabelWidth" prop="albumYear">
+      <el-input v-model="modifyForm.albumYear" auto-complete="off" placeholder="请输入发行年份"></el-input>
     </el-form-item>
 
-    <el-form-item label="发行年份:" :label-width="formLabelWidth" prop="albumYear">
-      <el-select v-model="modifyForm.albumYear" placeholder="请选择发行年份" class="sexArea" multiple>
-        <el-option label="2020" value="y2020"></el-option>
-        <el-option label="2019" value="y2019"></el-option>
-        <el-option label="2018-2000" value="y2018"></el-option>
-        <el-option label="90年代" value="y90"></el-option>
-        <el-option label="更早" value="other"></el-option>
-      </el-select>
+    <el-form-item label="歌手:" :label-width="formLabelWidth" prop="singer">
+      <el-select v-model="modifyForm.singer" placeholder="请选择歌手" class="sexArea" multiple @focus="getSinger()">
+       <el-option v-for="item in singers"
+               :key="item._id"
+               :label="item.singerName"
+               :value="item.singerName">
+      </el-option>
+      </el-select>   
     </el-form-item>
 
 
@@ -209,48 +210,8 @@ export default {
       collectFlag:false,
       collect:"收藏",
       albumName: "",
-      albumYear: "",
-      albumYears: [
-        {
-          label: "请选择",
-          value: ""
-        },
-        {
-          label: "2020",
-          value: "y2020"
-        },
-        {
-          label: "2019",
-          value: "y2019"
-        },
-        {
-          label: "2018-2000",
-          value: "y2018"
-        },
-        {
-          label: "90年代",
-          value: "y90"
-        },
-        {
-          label: "更早",
-          value: "other"
-        }
-      ],
-      location: "",
-      locations: [
-        {
-          label: "请选择",
-          value: ""
-        },
-        {
-          label: "中国",
-          value: "china"
-        },
-        {
-          label: "海外",
-          value: "abroad"
-        }
-      ],
+      singer: "",
+      singers: [],
       // 校验规则
       rules: {
         albumName: [
@@ -264,23 +225,23 @@ export default {
           { required: true, message: "请选择发行地区", trigger: "change" },
           { required: true, message: "请选择发行地区", trigger: "blur" }
         ],
-        singers: [
-          { required: true, message: "请输入歌手姓名", trigger: "blur" }
-        ],
         albumYear: [
+          { required: true, message: "请输入发行年份", trigger: "blur" }
+        ],
+        singer: [
           {
             required: true,
-            message: "至少选择一个发行年份",
+            message: "至少选择一个歌手",
             trigger: "change"
           },
-          { required: true, message: "至少选择一个发行年份", trigger: "blur" }
+          { required: true, message: "至少选择一个歌手", trigger: "blur" }
         ],
       },
       currentPage: 1, //当前页数
       pageNumber: 1, //第几页
       pageRow: 3, //每页多少条
       length: 0, //共有多少条
-      searchUrl: "./getAlbumList",
+      searchUrl: "./getAlbumList",searchSingerUrl:"./getSinger",
       addUrl: "./addAlbum",
       modifyUrl: "./modifyAlbum",
       deleteUrl: "./deleteAlbum",
@@ -293,25 +254,54 @@ export default {
         albumName: "",
         price: "",
         location: "",
-        singers: "",
-        albumYear: [],
+        albumYear: "",
+        singer: [],
       },
       modifyForm: {
         albumName: "",
         price: "",
         location: "",
-        singers: "",
-        albumYear: [],
+        albumYear: "",
+        singer: [],
       },
       formLabelWidth: "120px",
       loading: false
     };
   },
   methods: {
+    getSinger(){
+      request({
+        url: this.searchSingerUrl,
+        method: "post",
+      })
+        .then(response => {
+          this.$nextTick(function() {
+          });
+          
+          if (response.data.status == "success") {
+            this.singers = response.data.singerList;
+             console.log(response.data.singerList)
+          } else {
+            this.$message({
+              message: "查询出错，请重试!",
+              type: "error"
+            });
+          }
+        })
+        .catch(error => {
+          this.$nextTick(function() {
+            this.paginationShow = true;
+          });
+          console.log(error);
+        });
+
+      //每次查询删除本地缓存
+      sessionStorage.removeItem("queryParmas");
+    },
     // 清除查询条件
     clear() {
       this.albumName = "";
-      this.albumYear = "";
+      this.singer = "";
       this.location = "";
     },
  toggleCollect(){
@@ -324,14 +314,14 @@ export default {
    this.collectFlag=!this.collectFlag;
 
  },
-    //查询
+    //多条件查询
     search() {
       this.paginationShow = false;
 
       var searchParmas = {
         albumName: this.albumName,
         location: this.location,
-        albumYear: this.albumYear,
+        singer: this.singer,
         pageNumber: this.pageNumber,
         pageRow: this.pageRow
       };
@@ -382,24 +372,6 @@ export default {
       } else {
         return "";
       }
-    },
-
-    jungleYear(year) {
-      var albumYearQuery = {
-        y2020: "2020",
-        y2019: "2019",
-        y2018: "2018-2000",
-        y90: "90年代",
-        other: "其他"
-      };
-
-      var albumYearName = [];
-
-      year.forEach(function(elem, index) {
-        albumYearName.push(albumYearQuery[elem]);
-      });
-
-      return albumYearName.toString();
     },
 
     // 添加

@@ -1,5 +1,6 @@
 <template lang="html">
   <div class="list">
+
       <header>
         <div id="nav">
           <router-link to="/album">音乐专辑管理</router-link> |
@@ -7,25 +8,25 @@
           <router-link to="/test">mocha测试</router-link> |
           <router-link to="/interface">接口测试</router-link>|
           <router-link to="/">登出</router-link> 
-        </div>
+    </div>
     <router-view/>
-        <label for="" class="formLabelCss">歌手:</label>
-        <el-input v-model="singerName"  class="formInputCss" clearable placeholder="请输入歌手姓名"></el-input>
+        <label for="" class="formLabelCss">专辑名称:</label>
+        <el-input v-model="albumName"  class="formInputCss" clearable placeholder="请输入专辑名称"></el-input>
 
-        <label for="" class="formLabelCss">类别:</label>
-        <el-select v-model="singerPosition" class="formInputCss">
+        <label for="" class="formLabelCss">歌手:</label>
+        <el-select v-model="singer" class="formInputCss">
             <el-option
-              v-for="item in singerPositions"
+              v-for="item in singers"
               :key="item.value"
               :label="item.label"
               :value="item.value">
             </el-option>
         </el-select>
 
-        <label for="" class="formLabelCss">性别:</label>
-        <el-select v-model="singerSex" class="formInputCss">
+        <label for="" class="formLabelCss">发行地区:</label>
+        <el-select v-model="location" class="formInputCss">
             <el-option
-              v-for="item in singerSexs"
+              v-for="item in locations"
               :key="item.value"
               :label="item.label"
               :value="item.value">
@@ -33,12 +34,12 @@
         </el-select>
 
         <el-button type="primary" class="searchBtn" icon="el-icon-search" @keyup.enter.native="search"  @click="search">查询</el-button>
-			  <el-button type="text" @click="clear">清空查询条件</el-button>
+			  <el-button type="text" @click="clear">清空</el-button>
 
       </header>
 
       <nav>
-        <el-button type="primary" class="addBtn" @click="add" icon="el-icon-plus">添加</el-button>
+        <el-button type="primary" class="addBtn" @click="add" icon="el-icon-plus">添加专辑</el-button>
       </nav>
 
         
@@ -54,40 +55,40 @@
         style="width: 100%">
             <el-table-column
             fixed
-            prop="singerName"
-            label="歌手"
+            prop="albumName"
+            label="专辑名称"
             align="center"
             width="120">
             </el-table-column>
             <el-table-column
-            prop="age"
-            label="年龄"
+            prop="price"
+            label="价格"
             align="center"
             width="100">
             </el-table-column>
             <el-table-column
-            label="性别"
+            label="发行地区"
             align="center"
             width="100">
                     <template slot-scope="scope">
-                        <i class="iconfont myIcon-man" v-if="scope.row.singerSex=='man'"></i>
-                        <i class="iconfont myIcon-woman" v-if="scope.row.singerSex=='woman'"></i>
-                        {{jungleSex(scope.row.singerSex)}}
+                        {{jungleLocation(scope.row.location)}}
                     </template>
             </el-table-column>
             <el-table-column
-            prop="album"
-            label="代表作"
+            prop="albumYear"
+            label="发行年份"
             align="center"
             width="150">
             </el-table-column>
             
             <el-table-column
-            prop="dowhat"
-            label="类别"
+            prop="singer"
+            label="歌手"
             align="center"
             width="163">
-                    <template slot-scope="scope">{{junglePosition(scope.row.singerPosition)}}</template>
+                      <template slot-scope="scope">
+                        {{jungleYear(scope.row.singer)}}
+                    </template>
             </el-table-column>
           
             <el-table-column
@@ -96,7 +97,8 @@
             width="360">
             <template slot-scope="scope">
   <el-button size="small" type="success" @click="modify(scope.row)">修改</el-button>
-  <el-button type="danger" size="small" @click="deleteSinger(scope.row['_id'])">删除</el-button>
+  <el-button type="danger" size="small" @click="deleteAlbum(scope.row['_id'])">删除</el-button>
+  <el-button type="warning" size="small" @click="toggleCollect()">{{collect}}</el-button>
 </template>
             </el-table-column>
           </el-table>
@@ -115,33 +117,32 @@
     <!-- 新增数据 -->
   <el-dialog title="新增数据" :visible.sync="addFormVisible" class="addArea" modal custom-class="addFormArea" @close="closeAdd('addForm')">
   <el-form :model="addForm" class="addForm" :rules="rules" status-icon ref="addForm">
-
-    <el-form-item label="歌手:" :label-width="formLabelWidth" prop="singerName">
-      <el-input v-model="addForm.singerName" auto-complete="off" placeholder="请输入歌手姓名"></el-input>
+    <el-form-item label="专辑名称:" :label-width="formLabelWidth" prop="albumName">
+      <el-input v-model="addForm.albumName" auto-complete="off" placeholder="请输入专辑名称"></el-input>
     </el-form-item>
 
-    <el-form-item label="年龄:" :label-width="formLabelWidth" prop="age">
-      <el-input v-model.number="addForm.age" auto-complete="off" placeholder="请输入歌手年龄"></el-input>
+    <el-form-item label="价格:" :label-width="formLabelWidth" prop="price">
+      <el-input v-model.number="addForm.price" auto-complete="off" placeholder="请输入专辑价格"></el-input>
     </el-form-item>
 
-    <el-form-item label="性别:" :label-width="formLabelWidth" prop="singerSex">
-      <el-select v-model="addForm.singerSex" class="sexArea" placeholder="请输入歌手性别">
-        <el-option label="男" value="man"></el-option>
-        <el-option label="女" value="woman"></el-option>
+    <el-form-item label="发行地区:" :label-width="formLabelWidth" prop="location">
+      <el-select v-model="addForm.location" class="sexArea" placeholder="请输入发行地区">
+        <el-option label="中国" value="china"></el-option>
+        <el-option label="海外" value="abroad"></el-option>
       </el-select>
     </el-form-item>
 
-     <el-form-item label="代表作:" :label-width="formLabelWidth" prop="album">
-      <el-input v-model="addForm.album" auto-complete="off" placeholder="请输入歌手代表作"></el-input>
+     <el-form-item label="发行年份:" :label-width="formLabelWidth" prop="albumYear">
+      <el-input v-model="addForm.albumYear" auto-complete="off" placeholder="请输入发行年份"></el-input>
     </el-form-item>
 
-    <el-form-item label="类别:" :label-width="formLabelWidth" prop="singerPosition">
-      <el-select v-model="addForm.singerPosition" placeholder="请选择歌手类别" class="sexArea" multiple>
-        <el-option label="内地" value="neidi"></el-option>
-        <el-option label="港澳台" value="gangaotai"></el-option>
-        <el-option label="欧美" value="oumei"></el-option>
-        <el-option label="日韩" value="rihan"></el-option>
-        <el-option label="其他" value="qita"></el-option>
+    <el-form-item label="歌手:" :label-width="formLabelWidth" prop="singer">
+      <el-select v-model="addForm.singer" placeholder="请选择歌手" class="sexArea" multiple>
+        <el-option label="2020" value="y2020"></el-option>
+        <el-option label="2019" value="y2019"></el-option>
+        <el-option label="2018-2000" value="y2018"></el-option>
+        <el-option label="90年代" value="y90"></el-option>
+        <el-option label="更早" value="other"></el-option>
       </el-select>
     </el-form-item>
 
@@ -158,32 +159,32 @@
   <el-dialog title="修改数据" :visible.sync="modifyFormVisible" class="addArea" modal custom-class="addFormArea" @close="closeModify('modifyForm')">
   <el-form :model="modifyForm" class="addForm" :rules="rules" status-icon ref="modifyForm">
 
-    <el-form-item label="歌手:" :label-width="formLabelWidth" prop="singerName">
-      <el-input v-model="modifyForm.singerName" auto-complete="off" placeholder="请输入歌手姓名"></el-input>
+    <el-form-item label="专辑名称:" :label-width="formLabelWidth" prop="albumName">
+      <el-input v-model="modifyForm.albumName" auto-complete="off" placeholder="请输入专辑名称"></el-input>
     </el-form-item>
 
-    <el-form-item label="年龄:" :label-width="formLabelWidth" prop="age">
-      <el-input v-model.number="modifyForm.age" auto-complete="off" placeholder="请输入歌手年龄"></el-input>
+    <el-form-item label="价格:" :label-width="formLabelWidth" prop="price">
+      <el-input v-model.number="modifyForm.price" auto-complete="off" placeholder="请输入专辑价格"></el-input>
     </el-form-item>
 
-    <el-form-item label="性别:" :label-width="formLabelWidth" prop="singerSex">
-      <el-select v-model="modifyForm.singerSex" placeholder="请选择歌手性别" class="sexArea">
-        <el-option label="男" value="man"></el-option>
-        <el-option label="女" value="woman"></el-option>
+    <el-form-item label="发行地区:" :label-width="formLabelWidth" prop="location">
+      <el-select v-model="modifyForm.location" placeholder="请选择发行地区" class="sexArea">
+        <el-option label="中国" value="china"></el-option>
+        <el-option label="海外" value="abroad"></el-option>
       </el-select>
     </el-form-item>
 
-     <el-form-item label="代表作:" :label-width="formLabelWidth" prop="album">
-      <el-input v-model="modifyForm.album" auto-complete="off" placeholder="请输入歌手代表作"></el-input>
+     <el-form-item label="发行年份:" :label-width="formLabelWidth" prop="albumYear">
+      <el-input v-model="modifyForm.albumYear" auto-complete="off" placeholder="请输入发行年份"></el-input>
     </el-form-item>
 
-    <el-form-item label="类别:" :label-width="formLabelWidth" prop="singerPosition">
-      <el-select v-model="modifyForm.singerPosition" placeholder="请选择歌手类别" class="sexArea" multiple>
-        <el-option label="内地" value="neidi"></el-option>
-        <el-option label="港澳台" value="gangaotai"></el-option>
-        <el-option label="欧美" value="oumei"></el-option>
-        <el-option label="日韩" value="rihan"></el-option>
-        <el-option label="其他" value="qita"></el-option>
+    <el-form-item label="歌手:" :label-width="formLabelWidth" prop="singer">
+      <el-select v-model="modifyForm.singer" placeholder="请选择歌手" class="sexArea" multiple>
+        <el-option label="2020" value="y2020"></el-option>
+        <el-option label="2019" value="y2019"></el-option>
+        <el-option label="2018-2000" value="y2018"></el-option>
+        <el-option label="90年代" value="y90"></el-option>
+        <el-option label="更早" value="other"></el-option>
       </el-select>
     </el-form-item>
 
@@ -205,92 +206,102 @@ export default {
     return {
       title: "hello world",
       paginationShow: true,
-      singerName: "",
-      singerPosition: "",
-      singerPositions: [
+      collectFlag:false,
+      collect:"收藏",
+      albumName: "",
+      singer: "",
+      singers: [
         {
           label: "请选择",
           value: ""
         },
         {
-          label: "内地",
-          value: "neidi"
+          label: "2020",
+          value: "y2020"
         },
         {
-          label: "港澳台",
-          value: "gangaotai"
+          label: "2019",
+          value: "y2019"
         },
         {
-          label: "欧美",
-          value: "oumei"
+          label: "2018-2000",
+          value: "y2018"
         },
         {
-          label: "日韩",
-          value: "rihan"
+          label: "90年代",
+          value: "y90"
         },
         {
-          label: "其他",
-          value: "qita"
+          label: "更早",
+          value: "other"
         }
       ],
-      singerSex: "",
-      singerSexs: [
+      location: "",
+      locations: [
         {
           label: "请选择",
           value: ""
         },
         {
-          label: "男",
-          value: "man"
+          label: "中国",
+          value: "china"
         },
         {
-          label: "女",
-          value: "woman"
+          label: "海外",
+          value: "abroad"
         }
       ],
       // 校验规则
       rules: {
-        singerName: [
-          { required: true, message: "请输入歌手姓名", trigger: "blur" }
+        albumName: [
+          { required: true, message: "请输入专辑名称", trigger: "blur" }
         ],
-        singerSex: [
-          { required: true, message: "请选择歌手性别", trigger: "change" },
-          { required: true, message: "请选择歌手性别", trigger: "blur" }
+        age: [
+          { required: true, message: "请输入专辑价格", trigger: "blur" },
+          { type: "number", message: "价格必须为数字值" }
         ],
-        singerPosition: [
+        location: [
+          { required: true, message: "请选择发行地区", trigger: "change" },
+          { required: true, message: "请选择发行地区", trigger: "blur" }
+        ],
+        albumYear: [
+          { required: true, message: "请输入发行年份", trigger: "blur" }
+        ],
+        singer: [
           {
             required: true,
-            message: "至少选择一个歌手类别",
+            message: "至少选择一个歌手",
             trigger: "change"
           },
-          { required: true, message: "至少选择一个歌手类别", trigger: "blur" }
+          { required: true, message: "至少选择一个歌手", trigger: "blur" }
         ],
       },
       currentPage: 1, //当前页数
       pageNumber: 1, //第几页
       pageRow: 3, //每页多少条
       length: 0, //共有多少条
-      searchUrl: "./getSingerList",
-      addUrl: "./addSinger",
-      modifyUrl: "./modifySinger",
-      deleteUrl: "./deleteSinger",
+      searchUrl: "./getAlbumList",
+      addUrl: "./addAlbum",
+      modifyUrl: "./modifyAlbum",
+      deleteUrl: "./deleteAlbum",
       tableData: [],
       addFormVisible: false,
       modifyFormVisible: false,
       modifyId: "",
+
       addForm: {
-        singerName: "",
-        age: "",
-        singerSex: "",
-        album: "",
-        singerPosition: [],
+        albumName: "",
+        price: "",
+        location: "",
+        albumYear: "",
+        singer: [],
       },
       modifyForm: {
-        singerName: "",
-        age: "",
-        singerSex: "",
-        album: "",
-        singerPosition: [],
+        albumName: "",
+        price: "",
+        location: "",
+        albumYear: "",
+        singer: [],
       },
       formLabelWidth: "120px",
       loading: false
@@ -299,19 +310,28 @@ export default {
   methods: {
     // 清除查询条件
     clear() {
-      this.singerName = "";
-      this.singerPosition = "";
-      this.singerSex = "";
+      this.albumName = "";
+      this.singer = "";
+      this.location = "";
     },
+ toggleCollect(){
+   if(this.collectFlag){
+    console.log("##############"+this.collectFlag);
+    this.collect="取消收藏";
+    }
+  else
+     this.collect="收藏";
+   this.collectFlag=!this.collectFlag;
 
+ },
     //查询
     search() {
       this.paginationShow = false;
 
       var searchParmas = {
-        singerName: this.singerName,
-        singerPosition: this.singerPosition,
-        singerSex: this.singerSex,
+        albumName: this.albumName,
+        location: this.location,
+        singer: this.singer,
         pageNumber: this.pageNumber,
         pageRow: this.pageRow
       };
@@ -328,7 +348,7 @@ export default {
           });
           this.loading = false;
           if (response.data.status == "success") {
-            this.tableData = response.data.singerList;
+            this.tableData = response.data.albumList;
             this.length = response.data.total;
           } else {
             this.tableData = [];
@@ -345,45 +365,43 @@ export default {
           console.log(error);
         });
 
-      //每次查询删除本地缓存
+
       sessionStorage.removeItem("queryParmas");
     },
 
-    //页数改变时出发的函数
     handleCurrentChange: function(val) {
       this.pageNumber = `${val}`;
       this.search();
     },
 
-    // 转换性别
-    jungleSex(sex) {
-      if (sex == "man") {
-        return "男";
-      } else if (sex == "woman") {
-        return "女";
+    jungleLocation(location) {
+      if (location == "china") {
+        return "中国";
+      } else if (location == "abroad") {
+        return "海外";
       } else {
         return "";
       }
     },
 
-    // 转换位置
-    junglePosition(position) {
-      var singerPositionQuery = {
-        neidi: "内地",
-        gangaotai: "港澳台",
-        rihan: "日韩",
-        oumei: "欧美",
-        qita: "其他"
+    jungleYear(year) {
+      var singerQuery = {
+        y2020: "2020",
+        y2019: "2019",
+        y2018: "2018-2000",
+        y90: "90年代",
+        other: "其他"
       };
 
-      var singerPositionName = [];
+      var singerName = [];
 
-      position.forEach(function(elem, index) {
-        singerPositionName.push(singerPositionQuery[elem]);
+      year.forEach(function(elem, index) {
+        singerName.push(singerQuery[elem]);
       });
 
-      return singerPositionName.toString();
+      return singerName.toString();
     },
+
     // 添加
     add() {
       this.addFormVisible = true;
@@ -399,7 +417,6 @@ export default {
         if (valid) {
           var that = this;
           this.addFormVisible = false;
-          //调新增接口,在回调函数中刷新一次
           var addObj = this.addForm;
 
           request({
@@ -487,7 +504,7 @@ export default {
     },
 
     // 删除操作
-    deleteSinger(id) {
+    deleteAlbum(id) {
       var that = this;
       var deleteId = id;
       this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
@@ -531,6 +548,9 @@ export default {
         });
     },
 
+
+
+  
   },
 
   mounted: function() {
@@ -541,8 +561,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
-// header
+<style lang="scss" >
 header {
   padding: 50px 0;
   .formInputCss {

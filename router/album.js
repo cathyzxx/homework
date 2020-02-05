@@ -23,6 +23,27 @@ router.post('/login', function(req, res, next){
   });
 });
 //singer API
+router.post("/getSinger", (req, res) => {
+
+  var singerList = Singer.find({});
+    singerList.exec(function(err,result){
+        if(err){
+          res.json({
+            status:"fail",
+            error:err
+          });
+        }else{
+          Singer.find({},function(err,singers){
+            res.json({
+              status:"success",
+              singerList:result,
+              total:singers.length
+            });
+          })
+        }
+    })
+});
+
 router.post("/getSingerList", (req, res) => {
   var singerPosition = new RegExp(req.body.singerPosition),
       singerSex = req.body.singerSex,
@@ -139,15 +160,15 @@ router.delete("/deleteSinger/:id", (req, res) => {
 
 //album api
 router.post("/getAlbumList", (req, res) => {
-  var albumYear = new RegExp(req.body.albumYear),
+  var singer = new RegExp(req.body.singer),
       location = req.body.location,
       albumName = req.body.albumName,
       pageNumber = req.body.pageNumber,
       pageRow = req.body.pageRow;
 
   var sqlObj = {};
-  if(albumYear){
-    sqlObj.albumYear = albumYear;
+  if(singer){
+    sqlObj.singer = singer;
   }
   if(location){
     sqlObj.location = location;
@@ -218,7 +239,7 @@ router.put("/modifyAlbum/:id", (req, res) => {
       $set: {
         albumName: req.body.albumName,
         price: req.body.price,
-        singers: req.body.singers,
+        singer: req.body.singer,
         albumYear:req.body.albumYear,
         location:req.body.location,
       }

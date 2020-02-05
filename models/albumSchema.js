@@ -4,8 +4,8 @@ const albumSchema = mongoose.Schema({
   albumName : String,
   price : Number,
   location : String,
-  singers : String,
-  albumYear : [],
+  singer : [],
+  albumYear : String,
   
 }, { collection: 'myalbum'})
 const Album = module.exports = mongoose.model('album',albumSchema);
