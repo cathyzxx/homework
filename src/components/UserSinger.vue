@@ -1,9 +1,10 @@
 <template lang="html">
   <div class="list">
       <header>
-        <div id="nav">
-          <router-link to="/album">音乐专辑管理</router-link> |
-          <router-link to="/singer">歌手管理</router-link> |
+       <div id="nav">
+          <h1>用户您好！欢迎访问音乐平台</h1>
+          <router-link to="/home">专辑查询</router-link> |
+          <router-link to="/user-singer">歌手查询</router-link> |
           <router-link to="/test">mocha测试</router-link> |
           <router-link to="/interface">接口测试</router-link>|
            <el-button type="warning" size="small" @click="logout" class="login-btn" >退出</el-button>
@@ -36,12 +37,6 @@
 			  <el-button type="text" @click="clear">清空查询条件</el-button>
 
       </header>
-
-      <nav>
-        <el-button type="primary" class="addBtn" @click="add" icon="el-icon-plus">添加</el-button>
-      </nav>
-
-        
       <main>
         <el-table
         :data="tableData"
@@ -88,16 +83,6 @@
             align="center"
             width="163">
                     <template slot-scope="scope">{{junglePosition(scope.row.singerPosition)}}</template>
-            </el-table-column>
-          
-            <el-table-column
-            label="操作"
-            align="center"
-            width="360">
-            <template slot-scope="scope">
-  <el-button size="small" type="success" @click="modify(scope.row)">修改</el-button>
-  <el-button type="danger" size="small" @click="deleteSinger(scope.row['_id'])">删除</el-button>
-</template>
             </el-table-column>
           </el-table>
 

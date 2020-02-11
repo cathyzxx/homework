@@ -1,7 +1,15 @@
 <template lang="html">
   <div class="album">
       <header>
-          <h1>欢迎访问音乐平台</h1>
+                <div id="nav">
+          <h1>{{uname}}您好！欢迎访问音乐平台</h1>
+          <router-link to="/home">专辑查询</router-link> |
+          <router-link to="/user-singer">歌手查询</router-link> |
+          <router-link to="/test">mocha测试</router-link> |
+          <router-link to="/interface">接口测试</router-link>|
+           <el-button type="warning" size="small" @click="logout" class="login-btn" >退出</el-button>
+        </div>
+    <router-view/>
         <label for="" class="formLabelCss">按专辑名:</label>
         <el-input v-model="albumName"  class="formInputCss" clearable placeholder="请输入专辑名称"></el-input>
 
@@ -16,9 +24,8 @@
 
         <el-button type="primary" class="searchBtn" icon="el-icon-search" @keyup.enter.native="search"  @click="search">搜素</el-button>
 			  <el-button type="text" @click="clear">清空查询条件</el-button>
-        <el-button type="warning" @click="logout" class="login-btn" >退出</el-button>
       </header>
-            <el-button type="success"  @click="getFavs">我的收藏夹：</el-button> {{favs}}
+            <el-button type="success"  @click="getFavs">专辑收藏夹：</el-button> {{favs}}
       <main>
         <el-table
         :data="tableData"
@@ -250,11 +257,8 @@ toggleFav(albumName) {
           });
           console.log(error);
         });
-
-
       sessionStorage.removeItem("queryParmas");
     },
-
     handleCurrentChange: function(val) {
       this.pageNumber = `${val}`;
       this.search();

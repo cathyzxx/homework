@@ -8,6 +8,7 @@ import Singer from '@/components/Singer'
 import Album from '@/components/Album'
 import Test from '@/components/Test'
 import API from '@/components/API'
+import UserSinger from '@/components/UserSinger'
 
 Vue.use(Router)
 
@@ -32,6 +33,11 @@ export default new Router({
       path: '/singer',
       name: 'Singer',
       component: Singer
+    },
+    {
+      path: '/user-singer',
+      name: 'UserSinger',
+      component: UserSinger
     },
     {
       path: '/album',
