@@ -1,30 +1,169 @@
-
 const express = require("express");
 const router = express.Router();
 const Album = require("../models/albumSchema");
 const Singer = require("../models/singerSchema");
-
-//login API
-router.post('/login', function(req, res, next){
-  var username = req.body.username;
-  var password = req.body.password;
-
-  if(username === 'zhengxiaoxia' && password === '123456'){
-      res.cookie('user',username);
-      return res.send({
-          status: "success",
-          info:"欢迎来到郑晓霞音乐平台"
-      });
-  }
-
-  return res.send({
-      status: "fail",
-      info: '账号或密码错误'
-  });
+const User = require("../models/userSchema");
+//check if register uname is duplicate
+router.post("/checkUname", (req, res) => {
+  var sqlObj = {};
+  sqlObj.uname = req.body.uname;
+  var userList = User.find(sqlObj);
+  userList.exec(function(err,result){
+        if(err){
+          res.json({
+            status:"fail",
+            info: '用户名错误'
+          });
+        }else{
+            User.find(sqlObj,function(err,users){
+            if(users.length==0){
+              return res.send({
+                status: "success",
+              });
+            }else{
+              res.send({
+              status:"fail",
+              info: '用户名已被注册，请更换用户名'
+              });
+            }
+          })
+        }
+    })
 });
+//check if album uname is duplicate
+router.post("/checkAlbumName", (req, res) => {
+  var sqlObj = {};
+  sqlObj.albumName = req.body.albumName;
+  var albumList = Album.find(sqlObj);
+  albumList.exec(function(err,result){
+        if(err){
+          res.json({
+            status:"fail",
+            info: '专辑名错误'
+          });
+        }else{
+          Album.find(sqlObj,function(err,albums){
+            if(albums.length==0){
+              return res.send({
+                status: "success",
+              });
+            }else{
+              res.send({
+              status:"fail",
+              info: '同名专辑已录入系统，请更换专辑名'
+              });
+            }
+          })
+        }
+    })
+});
+//register API
+router.post("/register", (req, res) => {
+  console.log(req)
+  User.create(req.body, (err, user) => {
+    if (err) {
+      res.json({
+        status:"fail",
+        error:err
+      });
+    } else {
+      res.json({
+        status:"success",
+        message:"注册成功"
+      });
+    }
+  });
+  console.log(req.body)
+});
+//modifyUser API
+router.put("/modifyUser/:uname", (req, res) => {
+  console.log("@@@@@@@@@@@@@"+req.params)
+  User.findOneAndUpdate(
+    { uname: req.params.uname },
+    {
+      $set: {
+        fav: req.body.fav,
+      }
+    },
+    {
+      new: true
+    }
+  )
+    .then(user => res.json({
+      status:"success",
+      message:"修改成功"
+    }))
+    .catch(err => res.json({
+      status:"fail",
+      error:"修改失败"
+    }));
+});
+//search user by uname
+router.post("/searchByUname", (req, res) => {
+  var sqlObj = {};
+  sqlObj.uname = req.body.uname;
+  var userList = User.find(sqlObj);
+  userList.exec(function(err,result){
+        if(err){
+          res.json({
+            status:"fail",
+            info: '查找收藏失败'
+          });
+        }else{
+            User.find(sqlObj,function(err,users){
+            if(users.length>0){
+              console.log("!!!!!!!!!!!!!!!!!"+result[0]);
+              return res.json({
+                status: "success",
+                info:"查找成功",
+                userList:result[0],
+              });
+            }else{
+              res.send({
+              status:"fail",
+              info: '查找失败'
+              });
+            }
+          })
+        }
+    })
+});
+
+//loginAPI
+router.post("/login", (req, res) => {
+  var sqlObj = {};
+  sqlObj.uname = req.body.uname;
+  sqlObj.pwd = req.body.pwd;
+  var userList = User.find(sqlObj);
+  userList.exec(function(err,result){
+        if(err){
+          res.json({
+            status:"fail",
+            info: '账号或密码错误'
+          });
+        }else{
+            User.find(sqlObj,function(err,users){
+            if(users.length>0){
+              res.cookie('user',req.body.username);
+              return res.send({
+                status: "success",
+                info:"欢迎来到郑晓霞音乐平台",
+              });
+            }else{
+              res.send({
+              status:"fail",
+              info: '账号或密码错误'
+              });
+            }
+          })
+        }
+    })
+});
+
+
+
 //singer API
 router.post("/getSinger", (req, res) => {
-
   var singerList = Singer.find({});
     singerList.exec(function(err,result){
         if(err){
@@ -161,7 +300,6 @@ router.delete("/deleteSinger/:id", (req, res) => {
 //album api
 router.post("/getAlbumList", (req, res) => {
   var singer = new RegExp(req.body.singer),
-      location = req.body.location,
       albumName = req.body.albumName,
       pageNumber = req.body.pageNumber,
       pageRow = req.body.pageRow;
@@ -169,9 +307,6 @@ router.post("/getAlbumList", (req, res) => {
   var sqlObj = {};
   if(singer){
     sqlObj.singer = singer;
-  }
-  if(location){
-    sqlObj.location = location;
   }
   if(albumName){
     sqlObj.albumName = albumName;
@@ -212,7 +347,6 @@ router.get("/getAlbumDetail/:id", (req, res) => {
 
 
 router.post("/addAlbum", (req, res) => {
-
   console.log(req)
   Album.create(req.body, (err, album) => {
     if (err) {
@@ -241,7 +375,6 @@ router.put("/modifyAlbum/:id", (req, res) => {
         price: req.body.price,
         singer: req.body.singer,
         albumYear:req.body.albumYear,
-        location:req.body.location,
       }
     },
     {

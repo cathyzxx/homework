@@ -1,28 +1,47 @@
 <template>
   <div class="login-container">
     <el-form ref="form" :model="form" label-width="80px" :rules="loginRules" class="login-form">
-
       <h4 class="title">{{title}}</h4>
-
-      <el-form-item prop="username">
-        <el-input v-model="form.username"  prefix-icon="iconfont myIcon-user" placeholder="账号"></el-input>
+      <el-form-item prop="uname">
+        <el-input v-model="form.uname"  prefix-icon="iconfont myIcon-user" placeholder="账号"></el-input>
       </el-form-item>
-      <el-form-item prop="password">
-        <el-input v-model="form.password" prefix-icon="iconfont myIcon-password" placeholder="密码" :type="passwordType"><i slot="suffix" class="iconfont myIcon-eye" @click="showPwd"></i></el-input>
+      <el-form-item prop="pwd">
+        <el-input v-model="form.pwd" prefix-icon="iconfont myIcon-password" placeholder="密码" :type="passwordType"><i slot="suffix" class="iconfont myIcon-eye" @click="showPwd"></i></el-input>
       </el-form-item>
-
       <div class="login">
-        <el-button type="primary" @click="login" class="login-btn" :loading="isloading">登录</el-button>
+        <el-button type="primary" @click="add" class="login-btn">新用户注册</el-button>
+        <el-button type="primary" @click="managerLogin" class="login-btn">登录A端管理</el-button>
+        <el-button type="primary" @click="userLogin" class="login-btn">登录C端浏览</el-button>
       </div>
-      <p class="userinfo"><span>账号:</span>admin<span>密码:</span>123456</p>
-      
+      <p class="userinfo"><span>账号:</span>test1<span>密码:</span>123456</p>   
     </el-form>
+
+ <!-- 用户注册 -->
+  <el-dialog title="新用户注册" :visible.sync="addFormVisible" class="addArea" modal custom-class="addFormArea" @close="closeAdd('addForm')">
+  <el-form :model="addForm" class="addForm" :rules="rules" status-icon ref="addForm">
+    <el-form-item label="用户名:" :label-width="formLabelWidth" prop="uname">
+      <el-input v-model="addForm.uname" auto-complete="off" placeholder="请输入用户名"></el-input>
+    </el-form-item>
+     <el-form-item label="密码:" :label-width="formLabelWidth" prop="pwd">
+      <el-input  prefix-icon="iconfont myIcon-password" v-model="addForm.pwd" auto-complete="off" placeholder="请输入密码" :type="passwordType"><i slot="suffix" class="iconfont myIcon-eye" @click="showPwd"></i></el-input>
+    </el-form-item>
+     <el-form-item label="确认密码" :label-width="formLabelWidth" prop="checkPass">
+       <el-input type="password" v-model="addForm.checkPass" autocomplete="off" placeholder="请再次输入密码"></el-input>
+     </el-form-item>
+  </el-form>
+  <div slot="footer" class="dialog-footer">
+    <el-button @click="addFormVisible = false">取 消</el-button>
+    <el-button type="primary" @click="addSure('addForm')">确 定</el-button>
+  </div>
+</el-dialog>
+
   </div>
 </template>
 
 <script>
 import request from '@/utils/request';
 import { isvalidUsername } from "@/utils/validate"
+import { setToken } from "@/utils/user"
 export default {
   name: "login-page",
   data: function() {
@@ -34,46 +53,128 @@ export default {
         }
       }
       const validatePass = (rule, value, callback) => {
-        if (value.length < 5) {
-          callback(new Error('密码不能小于5位'))
+        if (value.length < 6) {
+          callback(new Error('密码不能小于6位'))
         } else {
           callback()
         }
       }
+       var validatePass2 = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请再次输入密码'));
+        } else if (value !== this.addForm.pwd) {
+          callback(new Error('两次输入密码不一致!'));
+        } else {
+          callback();
+        }
+      };
     return {
       title:"欢迎来到晓霞音乐平台",
       loginUrl:"./login",
+      addUrl: "./register",  checkUrl: "./checkUname", 
+      addFormVisible: false,
+      uname:"",
+      pwd:"",
       form: {
-        username: "",
-        password: ""
+        uname: "",
+        pwd: ""
       },
+       addForm: {
+        uname: "",
+        pwd: "",
+        checkPass: '',
+      },
+      formLabelWidth: "120px",
       loginRules:{
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePass }]
+        uname: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        pwd: [{ required: true, trigger: 'blur', validator: validatePass }]
+      },
+      rules: {
+        uname: [
+          { required: true, message: "请输入用户名", trigger: "blur" }
+        ],
+        pwd: [
+            { required: true, validator: validatePass, trigger: 'blur' }
+          ],
+        checkPass: [
+            { required: true, validator: validatePass2, trigger: 'blur' }
+          ],
       },
       passwordType:"password",
-      isloading:false
     };
   },
   methods: {
-    // 登录
-    login() {
-       // const that=this;
-       // that.$router.push({path:"/home"});
+     add() {
+      this.addFormVisible = true;
+    },
+
+    // 关闭注册页面
+    closeAdd: function(formName) {
+      this.$refs[formName].resetFields();
+    },
+    // 用户注册
+    addSure(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          var that = this;
+          var addObj = this.addForm;
+          request({
+            url: this.checkUrl,
+            method: "post",
+            data: addObj
+          })
+            .then(response => {
+              if (response.data.status == "success") {
+                request({
+                  url: this.addUrl,
+                  method: "post",
+                 data: addObj
+                })
+                .then(response => {
+                  if (response.data.status == "success") {
+                    this.$message({
+                    message: "用户注册成功",
+                    type: "success",
+                    });
+                    this.addFormVisible = false;
+                  } else {
+                    this.$message({
+                      message: "用户名或密码错误，请重新输入",
+                      type: "error"
+                    });
+                  }
+                }) 
+              } else {
+                this.$message({
+                  message: "该用户名已被注册，请重新输入",
+                  type: "error"
+                });
+              }
+            }) 
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
+    // 管理员登录
+    managerLogin() {
         var $this = this;
-        const that=this;
         this.$refs.form.validate(valid => {
               if (valid) {
-                this.isloading = true;
                 request({
                   url:this.loginUrl,
                   method:"post",
                   data:this.form,
               })
               .then(response => {
-                    $this.isloading = false;
-                    that.$router.push({path:"/home"});
-
+                if (response.data.status == "success") {
+                    $this.$router.push({path:"/album"});
+                }else{
+                  this.$message({
+                  message: "2用户名或密码错误，请重新输入",
+                  type: "error"
+                });
+                }
               })
               .catch((error) => {
                   console.log(error)
@@ -81,9 +182,47 @@ export default {
           } else {
             console.log("不请求")
           }
-      })
- 
-        
+      })   
+    },
+   // 用户登录
+    userLogin() {
+         var $this = this;
+         this.$refs.form.validate(valid => {
+              if (valid) {
+                request({
+                  url:this.loginUrl,
+                  method:"post",
+                  data:this.form,
+              })
+              .then(response => {
+                if (response.data.status == "success") {
+                    //$this.$router.push({path:"/home"});
+/*                     this.$router.push({
+                      name:'Home',
+                      params:{
+                      uname:this.form.uname
+                      }
+                    }) */
+                    this.$router.push({
+                      path:'/home',
+                      query:{
+                      uname:this.form.uname
+                      }
+                    })
+                }else{
+                  this.$message({
+                  message: "3用户名或密码错误，请重新输入",
+                  type: "error"
+                });
+                }
+              })
+              .catch((error) => {
+                  console.log(error)
+              });
+          } else {
+            console.log("不请求")
+          }
+      })   
     },
     showPwd() {
       if (this.passwordType === 'password') {
@@ -117,6 +256,24 @@ export default {
       margin: 0;
       padding: 40px 0;
     }
+    .addArea .el-input {
+  width: 200px;
+}
+
+.addForm {
+  overflow: hidden;
+}
+.addForm .el-form-item {
+  float: left;
+}
+.addFormArea {
+  .el-dialog__body {
+    height: 180px;
+  }
+  .el-dialog__header .el-dialog__title {
+    text-align: left;
+  }
+}
     .el-input__inner{
       padding-left: 40px;
     }
@@ -127,7 +284,7 @@ export default {
       width: 84%;
       input{
         background: transparent;
-        color: #fff;
+        color: blue;
         height: 50px;
       }
     }

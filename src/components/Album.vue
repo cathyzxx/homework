@@ -1,19 +1,20 @@
 <template lang="html">
-  <div class="list">
-
+  <div class="album">
       <header>
         <div id="nav">
-          <router-link to="/album">音乐专辑管理</router-link> |
+          <h1>管理员您好！欢迎访问音乐平台管理系统</h1>
+          <router-link to="/album">专辑管理</router-link> |
           <router-link to="/singer">歌手管理</router-link> |
           <router-link to="/test">mocha测试</router-link> |
           <router-link to="/interface">接口测试</router-link>|
-          <router-link to="/">登出</router-link> 
-    </div>
+           <el-button type="warning" size="small" @click="logout" class="login-btn" >退出</el-button>
+        </div>
     <router-view/>
-        <label for="" class="formLabelCss">专辑名称:</label>
+        <el-button type="primary" class="addBtn" @click="add" icon="el-icon-plus">添加专辑</el-button>
+        <label for="" class="formLabelCss">按专辑名:</label>
         <el-input v-model="albumName"  class="formInputCss" clearable placeholder="请输入专辑名称"></el-input>
 
-        <label for="" class="formLabelCss">歌手:</label>
+        <label for="" class="formLabelCss">按歌手:</label>
         <el-select v-model="singer" class="formInputCss" @focus="getSinger()" >
              <el-option v-for="item in singers"
                :key="item._id"
@@ -22,26 +23,9 @@
             </el-option>
         </el-select>
 
-        <label for="" class="formLabelCss">发行地区:</label>
-        <el-select v-model="location" class="formInputCss">
-            <el-option
-              v-for="item in locations"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-        </el-select>
-
-        <el-button type="primary" class="searchBtn" icon="el-icon-search" @keyup.enter.native="search"  @click="search">查询</el-button>
+        <el-button type="primary" class="searchBtn" icon="el-icon-search" @keyup.enter.native="search"  @click="search">搜素</el-button>
 			  <el-button type="text" @click="clear">清空查询条件</el-button>
-
       </header>
-
-      <nav>
-        <el-button type="primary" class="addBtn" @click="add" icon="el-icon-plus">添加专辑</el-button>
-      </nav>
-
-        
       <main>
         <el-table
         :data="tableData"
@@ -66,14 +50,6 @@
             width="100">
             </el-table-column>
             <el-table-column
-            label="发行地区"
-            align="center"
-            width="100">
-                    <template slot-scope="scope">
-                        {{jungleLocation(scope.row.location)}}
-                    </template>
-            </el-table-column>
-            <el-table-column
             prop="albumYear"
             label="发行年份"
             align="center"
@@ -85,20 +61,18 @@
             label="歌手"
             align="center"
             width="163">
-                      <template slot-scope="scope">
-                        {{scope.row.singer}}
-                    </template>
+              <template slot-scope="scope">
+                {{scope.row.singer}}
+              </template>
             </el-table-column>
-          
             <el-table-column
             label="操作"
             align="center"
             width="360">
             <template slot-scope="scope">
-  <el-button size="small" type="success" @click="modify(scope.row)">修改</el-button>
-  <el-button type="danger" size="small" @click="deleteAlbum(scope.row['_id'])">删除</el-button>
-  <el-button type="warning" size="small" @click="toggleCollect()">{{collect}}</el-button>
-</template>
+              <el-button size="small" type="success" @click="modify(scope.row)">修改</el-button>
+              <el-button type="danger" size="small" @click="deleteAlbum(scope.row['_id'])">删除</el-button>
+            </template>
             </el-table-column>
           </el-table>
 
@@ -123,14 +97,9 @@
     <el-form-item label="价格:" :label-width="formLabelWidth" prop="price">
       <el-input v-model.number="addForm.price" auto-complete="off" placeholder="请输入专辑价格"></el-input>
     </el-form-item>
-
-    <el-form-item label="发行地区:" :label-width="formLabelWidth" prop="location">
-      <el-select v-model="addForm.location" class="sexArea" placeholder="请输入发行地区">
-        <el-option label="中国" value="china"></el-option>
-        <el-option label="海外" value="abroad"></el-option>
-      </el-select>
+     <el-form-item label="发行年份:" :label-width="formLabelWidth" prop="albumYear">
+      <el-input v-model="addForm.albumYear" auto-complete="off" placeholder="请输入发行年份"></el-input>
     </el-form-item>
-
     <el-form-item label="歌手:" :label-width="formLabelWidth" prop="singer">
       <el-select v-model="addForm.singer" placeholder="请选择歌手" class="sexArea" multiple @focus="getSinger()">
        <el-option v-for="item in singers"
@@ -140,14 +109,6 @@
       </el-option>
       </el-select>   
     </el-form-item>
-
-     <el-form-item label="发行年份:" :label-width="formLabelWidth" prop="albumYear">
-      <el-input v-model="addForm.albumYear" auto-complete="off" placeholder="请输入发行年份"></el-input>
-    </el-form-item>
-
-
-
-
 
   </el-form>
   <div slot="footer" class="dialog-footer">
@@ -167,15 +128,7 @@
     <el-form-item label="价格:" :label-width="formLabelWidth" prop="price">
       <el-input v-model.number="modifyForm.price" auto-complete="off" placeholder="请输入专辑价格"></el-input>
     </el-form-item>
-
-    <el-form-item label="发行地区:" :label-width="formLabelWidth" prop="location">
-      <el-select v-model="modifyForm.location" placeholder="请选择发行地区" class="sexArea">
-        <el-option label="中国" value="china"></el-option>
-        <el-option label="海外" value="abroad"></el-option>
-      </el-select>
-    </el-form-item>
-
-     <el-form-item label="发行年份:" :label-width="formLabelWidth" prop="albumYear">
+    <el-form-item label="发行年份:" :label-width="formLabelWidth" prop="albumYear">
       <el-input v-model="modifyForm.albumYear" auto-complete="off" placeholder="请输入发行年份"></el-input>
     </el-form-item>
 
@@ -188,30 +141,33 @@
       </el-option>
       </el-select>   
     </el-form-item>
-
-
   </el-form>
   <div slot="footer" class="dialog-footer">
     <el-button @click="modifyFormVisible = false">取 消</el-button>
     <el-button type="primary" @click="modifySure('modifyForm')">确 定</el-button>
   </div>
 </el-dialog>
+
+
+
+
+
   </div>
 </template>
 
 <script>
 import request from "@/utils/request";
+import { removeToken } from "@/utils/user"
 export default {
-  name: "list",
+  name: "album",
   data: function() {
     return {
       title: "hello world",
       paginationShow: true,
-      collectFlag:false,
-      collect:"收藏",
       albumName: "",
       singer: "",
       singers: [],
+      isAlbumNameExisted:false,
       // 校验规则
       rules: {
         albumName: [
@@ -220,13 +176,6 @@ export default {
         age: [
           { required: true, message: "请输入专辑价格", trigger: "blur" },
           { type: "number", message: "价格必须为数字值" }
-        ],
-        location: [
-          { required: true, message: "请选择发行地区", trigger: "change" },
-          { required: true, message: "请选择发行地区", trigger: "blur" }
-        ],
-        albumYear: [
-          { required: true, message: "请输入发行年份", trigger: "blur" }
         ],
         singer: [
           {
@@ -245,6 +194,7 @@ export default {
       addUrl: "./addAlbum",
       modifyUrl: "./modifyAlbum",
       deleteUrl: "./deleteAlbum",
+      checkUrl: "./checkAlbumName",
       tableData: [],
       addFormVisible: false,
       modifyFormVisible: false,
@@ -253,14 +203,12 @@ export default {
       addForm: {
         albumName: "",
         price: "",
-        location: "",
         albumYear: "",
         singer: [],
       },
       modifyForm: {
         albumName: "",
         price: "",
-        location: "",
         albumYear: "",
         singer: [],
       },
@@ -277,7 +225,6 @@ export default {
         .then(response => {
           this.$nextTick(function() {
           });
-          
           if (response.data.status == "success") {
             this.singers = response.data.singerList;
              console.log(response.data.singerList)
@@ -302,25 +249,13 @@ export default {
     clear() {
       this.albumName = "";
       this.singer = "";
-      this.location = "";
     },
- toggleCollect(){
-   if(this.collectFlag){
-    console.log("##############"+this.collectFlag);
-    this.collect="取消收藏";
-    }
-  else
-     this.collect="收藏";
-   this.collectFlag=!this.collectFlag;
-
- },
     //多条件查询
     search() {
       this.paginationShow = false;
 
       var searchParmas = {
         albumName: this.albumName,
-        location: this.location,
         singer: this.singer,
         pageNumber: this.pageNumber,
         pageRow: this.pageRow
@@ -363,17 +298,12 @@ export default {
       this.pageNumber = `${val}`;
       this.search();
     },
-
-    jungleLocation(location) {
-      if (location == "china") {
-        return "中国";
-      } else if (location == "abroad") {
-        return "海外";
-      } else {
-        return "";
-      }
+    //logout
+     logout(){
+      const that=this;
+      that.$router.push({path:"/"});
+      removeToken();
     },
-
     // 添加
     add() {
       this.addFormVisible = true;
@@ -383,15 +313,30 @@ export default {
     closeAdd: function(formName) {
       this.$refs[formName].resetFields();
     },
-    // 确认添加
-    addSure(formName) {
+    //检查同名专辑是否存在
+    addSure1(obj) {
+          var addObj = obj;
+          request({
+            url: this.checkUrl,
+            method: "post",
+            data: addObj
+          })
+          .then(response => {
+              if (response.data.status == "success") {
+                this.isAlbumNameExisted=true;
+                }
+              else
+                this.isAlbumNameExisted=false;
+            })   
+    },
+     addSure(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           var that = this;
           this.addFormVisible = false;
           var addObj = this.addForm;
-
-          request({
+          this.addSure1(addObj);
+            request({
             url: this.addUrl,
             method: "post",
             data: addObj
@@ -399,6 +344,7 @@ export default {
             .then(response => {
               this.loading = false;
               if (response.data.status == "success") {
+                              console.log("add succsess ");
                 this.$message({
                   message: response.data.message,
                   type: "success",
@@ -416,12 +362,13 @@ export default {
             .catch(error => {
               console.log(error);
             });
+           
         } else {
           console.log("error submit!!");
           return false;
         }
       });
-    },
+    }, 
     // 关闭dialog的函数
     closeModify: function(formName) {
       this.$refs[formName].resetFields();
@@ -440,9 +387,9 @@ export default {
       this.$refs[formName].validate((valid) => {
           if (valid) {
             request({
-        url: `${this.modifyUrl}/${this.modifyId}`,
-        method: "put",
-        data: this.modifyForm
+              url: `${this.modifyUrl}/${this.modifyId}`,
+              method: "put",
+              data: this.modifyForm
       })
         .then(response => {
           this.modifyFormVisible = false;
@@ -474,7 +421,6 @@ export default {
           }
         });
     },
-
     // 删除操作
     deleteAlbum(id) {
       var that = this;
@@ -535,9 +481,9 @@ export default {
 
 <style lang="scss" >
 header {
-  padding: 50px 0;
+  padding: 20px 0;
   .formInputCss {
-    width: 220px;
+    width: 150px;
     margin-right: 20px;
   }
   .formLabelCss {
@@ -547,16 +493,15 @@ header {
     margin-left: 30px;
   }
 }
-
 // nav
 nav {
-  padding: 30px 0;
+  padding: 20px 0;
   border-top: 1px solid black;
   border-bottom: 1px solid black;
-  margin-bottom: 50px;
+  margin-bottom: 20px;
 }
 #nav {
-  padding: 30px;
+  padding: 20px;
 }
 
 #nav a {
@@ -571,7 +516,7 @@ nav {
 main {
   .pagination {
     float: right;
-    padding: 30px 0;
+    padding: 20px 0;
   }
 }
 .tableHeader {
@@ -598,7 +543,7 @@ div.list {
 }
 .addFormArea {
   .el-dialog__body {
-    height: 350px;
+    height: 250px;
   }
   .el-dialog__header .el-dialog__title {
     text-align: left;

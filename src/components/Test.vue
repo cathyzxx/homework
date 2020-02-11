@@ -30,8 +30,8 @@
     let albumModel=mogoose.model("Album")
 
     function addAlbum(album,callback) {
-        let b=  albumModel.create(album,function (err,newBookDoc) {
-        if(!err) callback(newBookDoc.toObject())
+        let b=  albumModel.create(album,function (err,newAlbumDoc) {
+        if(!err) callback(newAlbumDoc.toObject())
         })
     }
 
@@ -61,7 +61,7 @@
        })
     })
     it("测试删除",function (done) {
-        album.deleteAlbum("5e1680416847d8312b777253",function ({}) {
+        album.deleteAlbum("5e3bb3ebc89e9c0e687e4d1c",function ({}) {
             console.log({})
             done()
         })
