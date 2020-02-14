@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="album">
       <header>
-                <div id="nav">
+        <div id="nav">
           <h1>{{uname}}您好！欢迎访问音乐平台</h1>
           <router-link to="/home">专辑查询</router-link> |
           <router-link to="/user-singer">歌手查询</router-link> |
