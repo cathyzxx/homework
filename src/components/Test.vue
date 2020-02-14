@@ -5,7 +5,7 @@
           <router-link to="/singer">歌手管理</router-link> |
           <router-link to="/test">mocha测试</router-link> |
           <router-link to="/interface">接口测试</router-link>|
-          <router-link to="/">登出</router-link> 
+          <router-link to="/admin-login">登出</router-link> 
     </div>
     <pre>   const mongoose=require('mongoose')
     require('../model')

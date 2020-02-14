@@ -9,7 +9,7 @@ import Album from '@/components/Album'
 import Test from '@/components/Test'
 import API from '@/components/API'
 import UserSinger from '@/components/UserSinger'
-
+import AdminLogin from '@/components/AdminLogin'
 Vue.use(Router)
 
 export default new Router({
@@ -23,6 +23,11 @@ export default new Router({
       path: '/login',
       name: 'Login',
       component: Login
+    },
+    {
+      path: '/admin-login',
+      name: 'AdminLogin',
+      component: AdminLogin
     },
     {
       path: '/home',

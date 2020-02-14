@@ -157,7 +157,7 @@
 
 <script>
 import request from "@/utils/request";
-import { removeToken } from "@/utils/user"
+import { removeToken } from "@/utils/user";
 export default {
   name: "album",
   data: function() {
@@ -301,7 +301,7 @@ export default {
     //logout
      logout(){
       const that=this;
-      that.$router.push({path:"/"});
+      that.$router.push({path:"/admin-login"});
       removeToken();
     },
     // 添加
@@ -425,7 +425,7 @@ export default {
     deleteAlbum(id) {
       var that = this;
       var deleteId = id;
-      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+      this.$confirm("此操作将永久删除, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"

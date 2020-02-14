@@ -199,6 +199,7 @@
 
 <script>
 import request from "@/utils/request";
+import { removeToken } from "@/utils/user";
 export default {
   name: "list",
   data: function() {
@@ -299,7 +300,7 @@ export default {
   methods: {
     logout(){
       const that=this;
-      that.$router.push({path:"/"});
+      that.$router.push({path:"/admin-login"});
       removeToken();
     },
     // 清除查询条件
@@ -495,7 +496,7 @@ export default {
     deleteSinger(id) {
       var that = this;
       var deleteId = id;
-      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+      this.$confirm("此操作将永久删除, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"

@@ -2,14 +2,11 @@
   <div class="album">
       <header>
         <div id="nav">
-          <h1>{{uname}}您好！欢迎访问音乐平台</h1>
-          <router-link to="/home">专辑查询</router-link> |
-          <router-link to="/user-singer">歌手查询</router-link> |
-          <router-link to="/test">mocha测试</router-link> |
-          <router-link to="/interface">接口测试</router-link>|
-           <el-button type="warning" size="small" @click="logout" class="login-btn" >退出</el-button>
+          <h1>用户{{uname}}您好!欢迎来到专辑页面 </h1>
+          <el-button type="success" @click="searchSinger()" class="login-btn" >点此进入歌手页</el-button> |
+           <el-button type="warning" @click="logout" class="login-btn" >退出</el-button>
         </div>
-    <router-view/>
+     
         <label for="" class="formLabelCss">按专辑名:</label>
         <el-input v-model="albumName"  class="formInputCss" clearable placeholder="请输入专辑名称"></el-input>
 
@@ -22,10 +19,10 @@
             </el-option>
         </el-select>
 
-        <el-button type="primary" class="searchBtn" icon="el-icon-search" @keyup.enter.native="search"  @click="search">搜素</el-button>
+        <el-button type="primary" class="searchBtn" icon="el-icon-search" @keyup.enter.native="search"  @click="search">搜素专辑</el-button>
 			  <el-button type="text" @click="clear">清空查询条件</el-button>
       </header>
-            <el-button type="success"  @click="getFavs">专辑收藏夹：</el-button> {{favs}}
+            我收藏的专辑有：{{favs}}
       <main>
         <el-table
         :data="tableData"
@@ -126,7 +123,15 @@ export default {
       }
     },
     //用户点击收藏转化按钮触发，先改变this.fav，再同步到数据库
-toggleFav(albumName) {
+    searchSinger(){
+      this.$router.push({
+                      path:'/user-singer',
+                      query:{
+                      uname:this.uname
+                      }
+                    })
+    },
+    toggleFav(albumName) {
   //查看当前点击专辑id是否在this.fav中，若在，则去掉;若不在，则添加
     const index = this.favs.indexOf(albumName);
      if (index === -1) {
@@ -174,7 +179,7 @@ toggleFav(albumName) {
             console.log(response.data.userList);
           } else {
             this.$message({
-              message: "查询出错，请重试!",
+              message: "查询收藏出错，请重试!",
               type: "error"
             });
           }
@@ -197,7 +202,7 @@ toggleFav(albumName) {
              console.log(response.data.singerList)
           } else {
             this.$message({
-              message: "查询出错，请重试!",
+              message: "查询歌手出错，请重试!",
               type: "error"
             });
           }
@@ -246,7 +251,7 @@ toggleFav(albumName) {
           } else {
             this.tableData = [];
             this.$message({
-              message: "查询出错，请重试!",
+              message: "查询专辑出错，请重试!",
               type: "error"
             });
           }
@@ -323,7 +328,6 @@ toggleFav(albumName) {
   mounted: function() {
     this.search();
     this.uname=this.$route.query.uname;
-    console.log("mounted get"+this.uname);
   }
 
 

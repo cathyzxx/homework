@@ -3,6 +3,7 @@ const router = express.Router();
 const Album = require("../models/albumSchema");
 const Singer = require("../models/singerSchema");
 const User = require("../models/userSchema");
+const Admin = require("../models/adminSchema");
 //check if register uname is duplicate
 router.post("/checkUname", (req, res) => {
   var sqlObj = {};
@@ -77,7 +78,6 @@ router.post("/register", (req, res) => {
 });
 //modifyUser API
 router.put("/modifyUser/:uname", (req, res) => {
-  console.log("@@@@@@@@@@@@@"+req.params)
   User.findOneAndUpdate(
     { uname: req.params.uname },
     {
@@ -112,7 +112,6 @@ router.post("/searchByUname", (req, res) => {
         }else{
             User.find(sqlObj,function(err,users){
             if(users.length>0){
-              console.log("!!!!!!!!!!!!!!!!!"+result[0]);
               return res.json({
                 status: "success",
                 info:"查找成功",
@@ -129,7 +128,7 @@ router.post("/searchByUname", (req, res) => {
     })
 });
 
-//loginAPI
+//user login
 router.post("/login", (req, res) => {
   var sqlObj = {};
   sqlObj.uname = req.body.uname;
@@ -160,7 +159,36 @@ router.post("/login", (req, res) => {
     })
 });
 
-
+//admin login
+router.post("/adminLogin", (req, res) => {
+  var sqlObj = {};
+  sqlObj.uname = req.body.uname;
+  sqlObj.pwd = req.body.pwd;
+  var userList = Admin.find(sqlObj);
+  userList.exec(function(err,result){
+        if(err){
+          res.json({
+            status:"fail",
+            info: '账号或密码错误'
+          });
+        }else{
+            Admin.find(sqlObj,function(err,admins){
+            if(admins.length>0){
+              res.cookie('user',req.body.username);
+              return res.send({
+                status: "success",
+                info:"欢迎来到郑晓霞音乐平台",
+              });
+            }else{
+              res.send({
+              status:"fail",
+              info: '账号或密码错误'
+              });
+            }
+          })
+        }
+    })
+});
 
 //singer API
 router.post("/getSinger", (req, res) => {

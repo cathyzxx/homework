@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <el-form ref="form" :model="form" label-width="80px" :rules="loginRules" class="login-form">
-      <h4 class="title">{{title}}</h4>
+      <h1 class="title">{{title}}</h1>
       <el-form-item prop="uname">
         <el-input v-model="form.uname"  prefix-icon="iconfont myIcon-user" placeholder="账号"></el-input>
       </el-form-item>
@@ -9,11 +9,11 @@
         <el-input v-model="form.pwd" prefix-icon="iconfont myIcon-password" placeholder="密码" :type="passwordType"><i slot="suffix" class="iconfont myIcon-eye" @click="showPwd"></i></el-input>
       </el-form-item>
       <div class="login">
-        <el-button type="primary" @click="add" class="login-btn">新用户注册</el-button>
-        <el-button type="primary" @click="userLogin" class="login-btn">用户登录</el-button>
-        <el-button type="primary" @click="toManagerLogin" class="login-btn">访问管理平台</el-button>
+        <el-button type="primary" @click="managerLogin" class="login-btn">管理员登录</el-button>
+        <el-button type="primary" @click="toLogin" class="login-btn">访问前台</el-button>
+
       </div>
-      <p class="userinfo"><span>账号:</span>test1<span>密码:</span>123456</p>   
+      <p class="userinfo"><span>账号:</span>admin<span>密码:</span>123456</p>   
     </el-form>
 
  <!-- 用户注册 -->
@@ -41,7 +41,6 @@
 <script>
 import request from '@/utils/request';
 import { isvalidUsername } from "@/utils/validate"
-import { setToken } from "@/utils/user"
 export default {
   name: "login-page",
   data: function() {
@@ -69,8 +68,8 @@ export default {
         }
       };
     return {
-      title:"用户您好！欢迎登录音乐平台",
-      loginUrl:"./login",
+      title:"管理员您好！欢迎登录音乐管理平台",
+      adminLoginUrl:"./adminLogin",
       addUrl: "./register",  checkUrl: "./checkUname", 
       addFormVisible: false,
       uname:"",
@@ -156,39 +155,22 @@ export default {
         }
       });
     },
-    // 跳转到后台界面
-    toManagerLogin() {
+    // 管理员登录
+    managerLogin() {
         var $this = this;
-        $this.$router.push({path:"/admin-login"});
-    },
-   // 用户登录
-    userLogin() {
-         var $this = this;
-         this.$refs.form.validate(valid => {
+        this.$refs.form.validate(valid => {
               if (valid) {
                 request({
-                  url:this.loginUrl,
+                  url:this.adminLoginUrl,
                   method:"post",
                   data:this.form,
               })
               .then(response => {
                 if (response.data.status == "success") {
-                    //$this.$router.push({path:"/home"});
-/*                     this.$router.push({
-                      name:'Home',
-                      params:{
-                      uname:this.form.uname
-                      }
-                    }) */
-                    this.$router.push({
-                      path:'/home',
-                      query:{
-                      uname:this.form.uname
-                      }
-                    })
+                    $this.$router.push({path:"/album"});
                 }else{
                   this.$message({
-                  message: "3用户名或密码错误，请重新输入",
+                  message: "用户名或密码错误，请重新输入",
                   type: "error"
                 });
                 }
@@ -200,6 +182,11 @@ export default {
             console.log("不请求")
           }
       })   
+    },
+   // 跳转到前台登录页面
+    toLogin() {
+         var $this = this;
+        $this.$router.push({path:"/login"});
     },
     showPwd() {
       if (this.passwordType === 'password') {
@@ -223,7 +210,7 @@ export default {
 .login-container{
   width: 100%;
   height: 100%;
-  background-image: url("../assets/image/loginBg.jpg");
+  background-image: url("../assets/image/adminLoginBg.jpg");
   background-repeat:no-repeat;
   background-size: cover;
   position: fixed;

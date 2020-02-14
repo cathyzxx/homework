@@ -2,14 +2,11 @@
   <div class="list">
       <header>
        <div id="nav">
-          <h1>用户您好！欢迎访问音乐平台</h1>
-          <router-link to="/home">专辑查询</router-link> |
-          <router-link to="/user-singer">歌手查询</router-link> |
-          <router-link to="/test">mocha测试</router-link> |
-          <router-link to="/interface">接口测试</router-link>|
-           <el-button type="warning" size="small" @click="logout" class="login-btn" >退出</el-button>
+          <h1>用户{{uname}}您好！欢迎来到歌手页</h1>
+          <el-button type="success" @click="searchAlbum()" class="login-btn" >点此进入专辑页</el-button>  |
+          <el-button type="warning" @click="logout" class="login-btn" >退出</el-button>
         </div>
-    <router-view/>
+     
         <label for="" class="formLabelCss">歌手:</label>
         <el-input v-model="singerName"  class="formInputCss" clearable placeholder="请输入歌手姓名"></el-input>
 
@@ -184,6 +181,7 @@
 
 <script>
 import request from "@/utils/request";
+import { removeToken } from "@/utils/user";
 export default {
   name: "list",
   data: function() {
@@ -192,6 +190,7 @@ export default {
       paginationShow: true,
       singerName: "",
       singerPosition: "",
+      uname:"",
       singerPositions: [
         {
           label: "请选择",
@@ -293,7 +292,15 @@ export default {
       this.singerPosition = "";
       this.singerSex = "";
     },
-
+    searchAlbum(){
+      console.log("!!!!!!"+this.uname),
+      this.$router.push({
+                      path:'/home',
+                      query:{
+                      uname:this.uname
+                      }
+                    })
+    },
     //查询
     search() {
       this.paginationShow = false;
@@ -480,7 +487,7 @@ export default {
     deleteSinger(id) {
       var that = this;
       var deleteId = id;
-      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+      this.$confirm("此操作将永久删除, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -525,6 +532,7 @@ export default {
 
   mounted: function() {
     this.search();
+    this.uname=this.$route.query.uname;
   }
 
 
